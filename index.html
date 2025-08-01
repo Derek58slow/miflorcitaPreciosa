@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Feliz Aniversario de Amor</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+      font-family: 'Courier New', monospace;
+    }
+
+    #intro {
+      position: absolute;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      background: black;
+      color: #ff69b4;
+      font-size: 2rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .typewriter {
+      border-right: .15em solid #ff69b4;
+      white-space: nowrap;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .center-message {
+      color: #ff69b4;
+      font-size: 6rem;
+      text-align: center;
+      opacity: 0.9;
+      animation: pulse 4s infinite, glow 5s ease-in-out infinite;
+      text-shadow: 0 0 20px #ff69b4, 0 0 30px #ff1493, 0 0 50px #ff69b4;
+    }
+
+    .extra-text {
+      margin-top: 1rem;
+      color: #ffc0cb;
+      font-size: 1.5rem;
+      text-shadow: 0 0 10px #ff69b4;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.05); opacity: 1; }
+    }
+
+    @keyframes glow {
+      0% { text-shadow: 0 0 10px #ff69b4; }
+      50% { text-shadow: 0 0 30px #ff1493, 0 0 60px #ff69b4; }
+      100% { text-shadow: 0 0 10px #ff69b4; }
+    }
+
+    .heart-cursor {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      z-index: 9999;
+      pointer-events: none;
+      transition: transform 0.1s ease;
+      filter: drop-shadow(0 0 4px #ff69b4);
+      display: none;
+    }
+
+    #audio-control {
+      position: absolute;
+      opacity: 0;
+      z-index: -1;
+    }
+
+    @media (max-width: 768px) {
+      .center-message {
+        font-size: 3rem;
+      }
+      #intro {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Intro frases tipo máquina de escribir -->
+<div id="intro"><span class="typewriter" id="typingText"></span></div>
+
+<!-- Canvas para animaciones -->
+<canvas id="canvas"></canvas>
+
+<!-- Mensaje central -->
+<div class="overlay">
+  <div class="center-message" id="centerText">TE AMO 💖</div>
+  <div class="extra-text" id="extraText"></div>
+</div>
+
+<!-- Cursor corazón -->
+<img id="cursor" class="heart-cursor" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjZmY2OWI0IiBkPSJNNDcuNiAyNUMyNS4xIDI1IDcgNDMuMSA3IDY1LjZDNyA4OC4xIDI0LjMgMTI3IDkzLjUgMTU3LjVjNjkuMiAzMC41IDE0Ni4zIDY0LjEgMTYxLjUgODQuMSAxNS4yLTIwIDEwMC4xLTUzLjYgMTY5LjMtODQuMSA2OS4yLTMwLjUgODYuNS02OS40IDg2LjUtOTEuOSAwLTIyLjUtMTguMS00MC42LTQwLjYtNDAuNnMtNDAuNiAxOC4xLTQwLjYgNDAuNmMwIDguMSAxLjYgMTUuNSA0LjMgMjIuMi0zLjEgMi4yLTYuNyAzLjUtMTAuNyAzLjUtMTMuOCAwLTI1LTExLjItMjUtMjVzMTEuMi0yNSAyNS0yNWM4LjEgMCAxNS41IDMuOSAyMC4yIDEwLjIgMTEuNy0xNS4yIDE4LjgtMzQuMiAxOC44LTU1LjIgMC00NS45LTM3LjItODMuMS04My4xLTgzLjFzLTgzLjEgMzcuMi04My4xIDgzLjFjMCAxNi4zIDQuNyAzMS41IDEyLjggNDQuMy0xLjIgMS4xLTIuNiAyLjEtNC4xIDIuOS0xNC4zIDcuOC0yNiggMTQuOS0zNi4yIDIwLjJDMTA5LjMgMTIxLjUgNDcuNiA4OC4xIDQ3LjYgNjUuNnMxOC4xLTQwLjYgNDAuNi00MC42QzEwOS4zIDI1IDc3IDQzLjEgNzcgNjUuNnMzMi4zIDQwLjYgMzIuMyA0MC42UzE3MC4xIDI1IDQ3LjYgMjV6Ii8+PC9zdmc+" alt="heart">
+
+<!-- Audio -->
+<audio id="audio-control" loop>
+  <source src="musica.mp3" type="audio/mpeg">
+  Tu navegador no soporta el elemento de audio.
+</audio>
+
+<script>
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
+  
+  // Intro con máquina de escribir
+  const intro = document.getElementById('intro');
+  const typingText = document.getElementById('typingText');
+  const phrases = [
+    "te amo, mi amor hermoso 💕",
+    "Gracias por regalarme tantos momentos mágicos ✨",
+    "Cada día a tu lado es mi lugar favorito 🏡",
+    "Eres la razón de mi sonrisa y mi paz 💗",
+    "eres mi siempre, aun que el mundo se acabe mañana"
+  ];
+  let phraseIndex = 0;
+  let charIndex = 0;
+
+  function typePhrase() {
+    if (phraseIndex < phrases.length) {
+      const currentPhrase = phrases[phraseIndex];
+      if (charIndex < currentPhrase.length) {
+        typingText.textContent += currentPhrase.charAt(charIndex);
+        charIndex++;
+        setTimeout(typePhrase, 70);
+      } else {
+        setTimeout(() => {
+          typingText.textContent = "";
+          charIndex = 0;
+          phraseIndex++;
+          typePhrase();
+        }, 1800);
+      }
+    } else {
+      intro.style.display = 'none';
+      if (!isTouchDevice) {
+        cursor.style.display = 'block';
+      }
+      startAnimation();
+    }
+  }
+
+  // Música
+  const audio = document.getElementById('audio-control');
+  
+  function playAudio() {
+    audio.volume = 0.8;
+    audio.play().catch(error => {
+      console.log('Error al reproducir audio:', error);
+    });
+  }
+  
+  document.body.addEventListener(isTouchDevice ? 'touchstart' : 'click', function() {
+    playAudio();
+  });
+
+  // Animaciones
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const cursor = document.getElementById('cursor');
+  const centerText = document.getElementById('centerText');
+  const extraText = document.getElementById('extraText');
+  
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  // Cursor corazón
+  if (!isTouchDevice) {
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.left = `${e.clientX - 16}px`;
+      cursor.style.top = `${e.clientY - 16}px`;
+      cursor.style.transform = `scale(${1 + Math.sin(Date.now()/300)*0.05})`;
+    });
+
+    document.addEventListener('mousedown', () => {
+      cursor.style.transform = 'scale(0.8)';
+    });
+    
+    document.addEventListener('mouseup', () => {
+      cursor.style.transform = 'scale(1.1)';
+      setTimeout(() => {
+        cursor.style.transform = 'scale(1)';
+      }, 100);
+    });
+  }
+
+  // Texto alternante
+  const centerTexts = ["TE AMO 💖", "MELISSA 💖"];
+  let currentText = 0;
+  setInterval(() => {
+    currentText = (currentText + 1) % centerTexts.length;
+    centerText.textContent = centerTexts[currentText];
+  }, 3000);
+
+  // Efectos de partículas
+  const colors = ['#ff69b4', '#ff1493', '#ffa07a', '#ffc0cb', '#ffb6c1', '#ffffe0'];
+  const loveMessages = ["TE AMO", "MI VIDA 💖", "ERES TODO", "CONTIGO SIEMPRE", "MI CORAZÓN"];
+  let particles = [], fireworks = [], hearts = [];
+  const baseFontSize = isTouchDevice ? 24 : 42;
+  let drops = [], columns;
+
+  function startAnimation() {
+    columns = Math.floor(canvas.width / (baseFontSize * 2));
+    drops = new Array(columns).fill(1);
+    animate();
+    setInterval(createHeart, 1000);
+    setInterval(createExplosion, 3000);
+  }
+
+  function getRandomMessage() {
+    return loveMessages[Math.floor(Math.random() * loveMessages.length)];
+  }
+
+  function createHeart() {
+    hearts.push({
+      x: Math.random() * canvas.width,
+      y: canvas.height + 20,
+      size: 16 + Math.random() * 10,
+      speed: 0.3 + Math.random() * 1.0,
+      opacity: 0.3 + Math.random() * 0.5
+    });
+  }
+
+  function drawHearts() {
+    hearts.forEach((h, index) => {
+      ctx.globalAlpha = h.opacity;
+      ctx.font = `${h.size}px monospace`;
+      ctx.fillStyle = '#ff69b4';
+      ctx.fillText("❤", h.x, h.y);
+      h.y -= h.speed;
+      if (h.y < -50) hearts.splice(index, 1);
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  function createExplosion() {
+    const count = 25 + Math.floor(Math.random() * 25);
+    const x = Math.random() * canvas.width * 0.8 + canvas.width * 0.1;
+    const y = Math.random() * canvas.height * 0.4 + canvas.height * 0.2;
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count;
+      const speed = Math.random() * 3 + 2;
+      fireworks.push({
+        x, y,
+        dx: Math.cos(angle) * speed,
+        dy: Math.sin(angle) * speed,
+        alpha: 1,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        text: Math.random() > 0.7 ? getRandomMessage() : null
+      });
+    }
+  }
+
+  function drawFireworks() {
+    fireworks.forEach((p, index) => {
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      if (p.text) {
+        ctx.font = 'bold 16px monospace';
+        ctx.fillText(p.text, p.x, p.y);
+      } else {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      p.x += p.dx;
+      p.y += p.dy;
+      p.alpha -= 0.02;
+      if (p.alpha <= 0) fireworks.splice(index, 1);
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  function drawMatrix() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#ff69b4";
+    for (let i = 0; i < drops.length; i++) {
+      const x = i * baseFontSize * 2;
+      const y = drops[i] * baseFontSize;
+      
+      ctx.shadowColor = "rgba(255, 105, 180, 0.7)";
+      ctx.shadowBlur = 10;
+      ctx.fillText("TE AMO", x, y);
+      
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+      ctx.lineWidth = 2;
+      ctx.strokeText("TE AMO", x, y);
+      ctx.fillText("TE AMO", x, y);
+
+      if (y > canvas.height && Math.random() > 0.992) {
+        drops[i] = 0;
+      }
+      drops[i] += 0.3;
+    }
+  }
+
+  function drawParticles() {
+    particles.forEach((p, index) => {
+      ctx.globalAlpha = p.alpha;
+      ctx.font = `bold ${p.size}px monospace`;
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 15;
+      ctx.fillText("TE AMO", p.x, p.y);
+      ctx.shadowBlur = 0;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.alpha -= 0.005;
+      if (p.alpha <= 0) {
+        particles.splice(index, 1);
+      }
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  function handleInteraction(e) {
+    const x = isTouchDevice ? e.touches[0].clientX : e.clientX;
+    const y = isTouchDevice ? e.touches[0].clientY : e.clientY;
+    
+    // Crear explosión al hacer clic
+    for (let i = 0; i < 5; i++) {
+      setTimeout(createExplosion, i * 200);
+    }
+    
+    // Partículas del cursor original
+    const directions = [
+      {x: 0, y: -1},
+      {x: 0, y: 1},
+      {x: -1, y: 0},
+      {x: 1, y: 0}
+    ];
+    
+    directions.forEach(dir => {
+      particles.push({
+        x: x,
+        y: y,
+        vx: dir.x * (3 + Math.random() * 2),
+        vy: dir.y * (3 + Math.random() * 2),
+        alpha: 1,
+        size: baseFontSize + Math.random() * 30,
+        color: `#${Math.random() > 0.5 ? 'ff69b4' : 'ff007f'}`
+      });
+    });
+
+    for (let i = 0; i < 16; i++) {
+      particles.push({
+        x: x,
+        y: y,
+        vx: (Math.random() - 0.5) * 6,
+        vy: (Math.random() - 0.5) * 6,
+        alpha: 1,
+        size: baseFontSize + Math.random() * 20,
+        color: `#${Math.random() > 0.5 ? 'ff69b4' : 'ff007f'}`
+      });
+    }
+  }
+
+  canvas.addEventListener(isTouchDevice ? 'touchstart' : 'click', handleInteraction);
+
+  function animate() {
+    drawMatrix();
+    drawHearts();
+    drawFireworks();
+    drawParticles();
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    columns = Math.floor(canvas.width / (baseFontSize * 2));
+    drops = new Array(columns).fill(1);
+  });
+
+  // Iniciar todo
+  window.onload = () => {
+    typePhrase();
+  };
+</script>
+</body>
+</html>
